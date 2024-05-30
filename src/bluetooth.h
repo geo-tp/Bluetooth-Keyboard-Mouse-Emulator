@@ -96,11 +96,13 @@ public:
     void onDisconnect(BLEServer* pServer) override {
         isConnected = false;
         updateBluetoothStatus(isConnected);
-        BLEDevice::startAdvertising();
-        
+
         // Deinit/init to avoid stuck connection
         deinitBluetooth();
         initBluetooth();
+
+        // Start Pub
+        BLEDevice::startAdvertising();
     }
 };
 

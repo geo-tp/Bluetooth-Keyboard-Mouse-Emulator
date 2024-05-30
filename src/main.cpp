@@ -50,7 +50,6 @@ void loop() {
                 if (status.enter) {
                     buttons |= 0x01; // Bouton gauche
                 }
-
                 if (M5Cardputer.Keyboard.isKeyPressed('\\')) {
                     buttons |= 0x02; // Bouton droit
                 }
@@ -88,11 +87,9 @@ void loop() {
                 if (status.ctrl) {
                     modifier |= 0x01;
                 }
-
                 if (status.shift) {
                     modifier |= 0x02;
                 }
-
                 if (status.alt) {
                     modifier |= 0x03;
                 }
@@ -115,8 +112,6 @@ void loop() {
             keyboardInput->setValue(emptyKeyboardReport, sizeof(emptyKeyboardReport));
             keyboardInput->notify();
         }
-        
     }
-
     delay(7); // Modifie la vitesse de déplacement souris
 }
