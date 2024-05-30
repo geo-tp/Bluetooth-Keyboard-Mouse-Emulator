@@ -1,3 +1,9 @@
+#ifndef BLUETOOTH_H
+#define BLUETOOTH_H
+
+#include <cstdlib> // Pour std::rand et std::srand
+#include <ctime>   // Pour std::time
+#include <Arduino.h>
 #include <BLEDevice.h>
 #include <BLEUtils.h>
 #include <BLEServer.h>
@@ -6,10 +12,10 @@
 #include "HIDKeyboardTypes.h"
 #include "display.h"
 
-BLEHIDDevice* hid;
-BLECharacteristic* mouseInput;
-BLECharacteristic* keyboardInput;
-bool isConnected = false;
+extern BLEHIDDevice* hid;
+extern BLECharacteristic* mouseInput;
+extern BLECharacteristic* keyboardInput;
+extern bool isConnected;
 
 const uint8_t HID_REPORT_MAP[] = {
     // Mouse report
@@ -77,15 +83,25 @@ const uint8_t HID_REPORT_MAP[] = {
     0xC0               // End Collection
 };
 
+void initBluetooth();
+void deinitBluetooth();
+
 class MyBLEServerCallbacks : public BLEServerCallbacks {
-    void onConnect(BLEServer* pServer) {
+public:
+    void onConnect(BLEServer* pServer) override {
         isConnected = true;
         updateBluetoothStatus(isConnected);
     }
 
-    void onDisconnect(BLEServer* pServer) {
+    void onDisconnect(BLEServer* pServer) override {
         isConnected = false;
         updateBluetoothStatus(isConnected);
         BLEDevice::startAdvertising();
+        
+        // Deinit/init to avoid stuck connection
+        deinitBluetooth();
+        initBluetooth();
     }
 };
+
+#endif

@@ -16,28 +16,7 @@ void setup() {
     M5Cardputer.Keyboard.begin();
 
     // Initialisation bluetooth
-    BLEDevice::init("M5-Keyboard-Mouse"); //  nom du periphérique
-    BLEServer *pServer = BLEDevice::createServer(); // BT server
-    pServer->setCallbacks(new MyBLEServerCallbacks()); // callback (co/deco)
-    hid = new BLEHIDDevice(pServer); // Peripherique HID BLE
-    mouseInput = hid->inputReport(1); // Mouse report
-    keyboardInput = hid->inputReport(2); // Keyboard report
-    hid->manufacturer()->setValue("Espressif"); // Fabricant
-    hid->pnp(0x02, 0x045e, 0x028e, 0x0110); // Infos HID
-    hid->hidInfo(0x00, 0x01); // Infos HID
-    hid->reportMap((uint8_t*)HID_REPORT_MAP, sizeof(HID_REPORT_MAP)); // Carte des rapports
-    hid->startServices(); // start servides HID
-
-    BLEAdvertising *pAdvertising = pServer->getAdvertising(); // Pub BLE
-    pAdvertising->setAppearance(HID_MOUSE); // Définir le périphérique comme une souris
-    pAdvertising->addServiceUUID(hid->hidService()->getUUID()); // Ajout UUID
-    pAdvertising->start(); // Start Pub
-
-    // Configuration de la sécurité BLE
-    BLESecurity *pSecurity = new BLESecurity();
-    pSecurity->setAuthenticationMode(ESP_LE_AUTH_BOND);
-    pSecurity->setCapability(ESP_IO_CAP_NONE); // Capacité I/O
-    pSecurity->setInitEncryptionKey(ESP_BLE_ENC_KEY_MASK | ESP_BLE_ID_KEY_MASK); // Clé init
+    initBluetooth();
 }
 
 void loop() {
