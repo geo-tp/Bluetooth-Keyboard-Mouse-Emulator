@@ -15,7 +15,7 @@ void setup() {
     // Initialisation du clavier
     M5Cardputer.Keyboard.begin();
 
-    // Initialisation bluetooth 
+    // Initialisation bluetooth
     BLEDevice::init("M5-Keyboard-Mouse"); //  nom du periphérique
     BLEServer *pServer = BLEDevice::createServer(); // BT server
     pServer->setCallbacks(new MyBLEServerCallbacks()); // callback (co/deco)
@@ -124,7 +124,6 @@ void loop() {
                 keyboardInput->notify();
                 delay(50); // Modifie la vitesse de répétition des touches claviers
             }
-            ;
         } else {
             
             // ######################### Empty #############################
