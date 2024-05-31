@@ -61,7 +61,8 @@ void loop() {
                 else if (M5Cardputer.Keyboard.isKeyPressed('.')) {
                     y += 1;
                 }
-                else if (M5Cardputer.Keyboard.isKeyPressed('/')) {
+                
+                if (M5Cardputer.Keyboard.isKeyPressed('/')) {
                     x += 1;
                 }
                 else if (M5Cardputer.Keyboard.isKeyPressed(',')) {
