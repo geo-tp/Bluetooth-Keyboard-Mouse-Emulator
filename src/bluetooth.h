@@ -1,8 +1,6 @@
 #ifndef BLUETOOTH_H
 #define BLUETOOTH_H
 
-#include <cstdlib> // Pour std::rand et std::srand
-#include <ctime>   // Pour std::time
 #include <Arduino.h>
 #include <BLEDevice.h>
 #include <BLEUtils.h>

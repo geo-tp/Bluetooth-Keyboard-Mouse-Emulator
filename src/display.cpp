@@ -1,4 +1,3 @@
-#include <M5Cardputer.h>
 #include "display.h"
 
 
