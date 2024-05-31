@@ -97,10 +97,6 @@ public:
         isConnected = false;
         updateBluetoothStatus(isConnected);
 
-        // Deinit/init to avoid stuck connection
-        deinitBluetooth();
-        initBluetooth();
-
         // Start Pub
         BLEDevice::startAdvertising();
     }
