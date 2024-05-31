@@ -88,18 +88,8 @@ void deinitBluetooth();
 
 class MyBLEServerCallbacks : public BLEServerCallbacks {
 public:
-    void onConnect(BLEServer* pServer) override {
-        isConnected = true;
-        updateBluetoothStatus(isConnected);
-    }
-
-    void onDisconnect(BLEServer* pServer) override {
-        isConnected = false;
-        updateBluetoothStatus(isConnected);
-
-        // Start Pub
-        BLEDevice::startAdvertising();
-    }
+    void onConnect(BLEServer* pServer) override;
+    void onDisconnect(BLEServer* pServer, esp_ble_gatts_cb_param_t *param) override;
 };
 
 #endif

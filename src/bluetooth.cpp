@@ -7,6 +7,20 @@ BLECharacteristic* mouseInput;
 BLECharacteristic* keyboardInput;
 bool isConnected = false;
 
+void MyBLEServerCallbacks::onConnect(BLEServer* pServer) {
+    isConnected = true;
+    updateBluetoothStatus(isConnected);
+}
+
+void MyBLEServerCallbacks::onDisconnect(BLEServer* pServer, esp_ble_gatts_cb_param_t *param) {
+    isConnected = false;
+    updateBluetoothStatus(isConnected);
+    
+    pServer->disconnect(param->disconnect.conn_id); // Properly disconnect the client
+    pServer->startAdvertising();  // Start advertising making device discoverable
+}
+
+
 void deinitBluetooth() {
     BLEDevice::deinit(); // De-initialize BLE to avoid weird BT connection
     delay(1000);
