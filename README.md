@@ -1,6 +1,6 @@
 # M5 Keyboard and Mouse Emulator
 
-This project implements a BLE HID device using the M5Cardputer, capable of emulating both a keyboard and a mouse. The device can switch between mouse and keyboard modes, sending the appropriate input data to a connected BLE device.
+This project implements a USB HID and a BLE HID device using the M5Cardputer, capable of emulating both a keyboard and a mouse. The device can switch between mouse and keyboard modes, sending the appropriate input data to a connected USB/BLE device.
 
 ## Key Features
 
