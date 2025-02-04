@@ -58,8 +58,10 @@ void loop() {
     M5Cardputer.update();
 
     // For BT connection status change
-    if (lastBluetoothStatus != getBluetoothStatus()) {
-        modeIndicator(usbMode, getBluetoothStatus());
+    auto bluetoothStatus = getBluetoothStatus();
+    if (lastBluetoothStatus != bluetoothStatus) {
+        modeIndicator(usbMode, bluetoothStatus);
+        lastBluetoothStatus = bluetoothStatus;
     }
 
     // Switch between keyboard/mouse
