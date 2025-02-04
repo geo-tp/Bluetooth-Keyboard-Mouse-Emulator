@@ -83,6 +83,12 @@ const uint8_t HID_REPORT_MAP[] = {
 
 void initBluetooth();
 void deinitBluetooth();
+bool getBluetoothStatus();
+
+void bluetoothMouse();
+void bluetoothKeyboard();
+void sendEmptyReports();
+void handleBluetoothMode(bool mouseMode);
 
 class MyBLEServerCallbacks : public BLEServerCallbacks {
 public:
@@ -90,4 +96,4 @@ public:
     void onDisconnect(BLEServer* pServer, esp_ble_gatts_cb_param_t *param) override;
 };
 
-#endif
+#endif // BLUETOOTH_H
