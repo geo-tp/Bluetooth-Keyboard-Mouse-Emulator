@@ -45,13 +45,13 @@ void usbMouse() {
         } else if (M5Cardputer.Keyboard.isKeyPressed('\\')) {
             // droit
             mouse.press(MOUSE_BUTTON_RIGHT);
-        } else {
-            mouse.release(MOUSE_BUTTON_LEFT);
-            mouse.release(MOUSE_BUTTON_RIGHT);
         }
-
         // Send
         mouse.move(moveX, moveY);
+
+    } else {
+        mouse.release(MOUSE_BUTTON_LEFT);
+        mouse.release(MOUSE_BUTTON_RIGHT);
     }
 }
 
