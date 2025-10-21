@@ -74,23 +74,25 @@ void bluetoothKeyboard() {
             count++;
         }
     }
+
+    if (M5Cardputer.Keyboard.isKeyPressed(' ') && count < 6) {
+        keycode[count++] = 0x2C;  // HID SPACE
+    }
+
     // Modifiers
-    if (status.ctrl) {
-        modifier |= 0x01;
-    }
-    if (status.shift) {
-        modifier |= 0x02;
-    }
-    if (status.alt) {
-        modifier |= 0x04;
-    }
-    
+    if (status.ctrl)  modifier |= 0x01;
+    if (status.shift) modifier |= 0x02;
+    if (status.alt)   modifier |= 0x04;
+
     // Send
-    uint8_t report[8] = {modifier, 0, keycode[0], keycode[1], keycode[2], keycode[3], keycode[4], keycode[5]};
+    uint8_t report[8] = {
+        modifier, 0,
+        keycode[0], keycode[1], keycode[2],
+        keycode[3], keycode[4], keycode[5]
+    };
     keyboardInput->setValue(report, sizeof(report));
     keyboardInput->notify();
 
-    // adjust keys speed
     delay(50);
 }
 

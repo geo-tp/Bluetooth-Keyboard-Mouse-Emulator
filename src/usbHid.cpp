@@ -56,19 +56,32 @@ void usbMouse() {
 }
 
 void usbKeyboard() {
-    keyboard.begin();
-    if (M5Cardputer.Keyboard.isChange()) {
-        if (M5Cardputer.Keyboard.isPressed()) {
-            Keyboard_Class::KeysState status = M5Cardputer.Keyboard.keysState();
-            KeyReport report = {0};
-            report.modifiers = status.modifiers;
-            uint8_t index = 0;
-            for (auto i : status.hid_keys) {
-                report.keys[0] = i;
-            }
+    static bool inited = false;
+    if (!inited) { keyboard.begin(); inited = true; }
 
-            keyboard.sendReport(&report);
-            keyboard.releaseAll();
-        }
+    if (!M5Cardputer.Keyboard.isChange()) return;
+
+    Keyboard_Class::KeysState status = M5Cardputer.Keyboard.keysState();
+
+    KeyReport report = {0};
+    report.modifiers = status.modifiers;
+
+    uint8_t idx = 0;
+    for (auto k : status.hid_keys) {
+        if (idx < 6) report.keys[idx++] = k;
+        else break;
+    }
+
+    if (M5Cardputer.Keyboard.isKeyPressed(' ')) {
+        const uint8_t HID_SPACE = 0x2C;
+        bool present = false;
+        for (uint8_t i = 0; i < idx; ++i) if (report.keys[i] == HID_SPACE) { present = true; break; }
+        if (!present && idx < 6) report.keys[idx++] = HID_SPACE;
+    }
+
+    if (idx == 0 && report.modifiers == 0) {
+        keyboard.releaseAll();
+    } else {
+        keyboard.sendReport(&report);
     }
 }
