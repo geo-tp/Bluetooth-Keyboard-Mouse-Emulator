@@ -1,22 +1,151 @@
-# M5 Keyboard and Mouse Emulator
+# M5Stack CardPuter ADV — 蓝牙/ USB 键盘与陀螺仪鼠标模拟器
 
-This project implements a USB HID and a BLE HID device using the M5Cardputer, capable of emulating both a keyboard and a mouse. The device can switch between mouse and keyboard modes, sending the appropriate input data to a connected USB/BLE device.
+## 项目简介
 
-## Key Features
+本项目将 **M5Stack CardPuter ADV（SKU K132-Adv）** 变身为一个 **USB / 蓝牙双模 HID 键盘与鼠标模拟器**。你可以把它插在电脑上当无线键鼠使用，也可以通过蓝牙连接手机、平板、电视等设备进行操控。
 
-- <b>Mouse and Keyboard Emulation:</b> The device can function as either a mouse or a keyboard, sending the corresponding input data via BLE.
-- <b>Mode Switching:</b> You can toggle between mouse and keyboard modes using a designated key (Btn GO).
-- <b>Controlling mouse with the arrow keys</b>
+本项目的核心亮点是 **体感鼠标**：不再用方向键一格一格地挪光标，而是通过设备内置的 **IMU 加速度计** 感知倾斜角度，像握着一个空中鼠标一样，自然流畅地移动光标。
 
+---
 
-## Installation
+## 适用设备
 
-- <b>M5Burner</b> : Search into M5CARDPUTER section and simply burn it
-- <b>Old school</b> : Build or take the firmware.bin from the github release and flash it
+| 设备型号 | 主控 | 说明 |
+|---------|------|------|
+| **M5Stack CardPuter ADV** | ESP32-S3 | 本项目的目标设备，板载 IMU、键盘、屏幕 |
 
+---
 
-## Usage
+## 主要功能
 
-- <b> Mode :</b> Toggle GO button (on the edge) to change between Keyboard and Mouse
-- <b>Keyboard :</b> Default Cardputer Keys. The keyboard layout depends on the configuration of the connected PC.
-- <b> Mouse : </b>Arrow LEFT/RIGHT/UP/DOWN and 'OK' and '\\' (just above 'OK' Button)</b>
+### 🔄 双模连接
+- **USB HID 模式**：通过 USB-C 连接电脑，即插即用，无需额外驱动
+- **蓝牙 BLE HID 模式**：无线连接手机、平板、智能电视、电脑等设备
+
+### 🖱️ 体感鼠标控制
+- 利用 CardPuter ADV 内置的 **IMU 加速度计** 实现陀螺仪式体感鼠标
+- **倾斜设备即可移动光标**，倾斜角度越大光标移动越快
+- 内置 **死区过滤**：轻微晃动不会导致光标漂移
+- **低通滤波平滑**：光标移动流畅自然，无抖动
+- **非线性速度曲线**：小幅倾斜精细定位，大幅倾斜快速移动
+
+### ⌨️ 键盘模式
+- 保留 CardPuter ADV 原生键盘的所有按键输入
+- 支持修饰键（Ctrl / Shift / Alt）
+- 支持空格键等常用按键
+
+### 🔀 一键切换
+- 按下 **GO（BtnA）按钮** 即可在键盘模式和鼠标模式之间快速切换
+- 屏幕上有清晰的状态指示
+
+### 🖥️ 屏幕显示
+- **欢迎界面**：显示项目名称和版本
+- **模式选择界面**：启动时选择 USB 或蓝牙模式
+- **主界面**：实时显示当前工作模式（键盘/鼠标）、连接方式（USB/蓝牙）、蓝牙连接状态
+
+### 🖲️ 鼠标按键映射
+| 物理按键 | 鼠标功能 |
+|---------|---------|
+| Enter / OK | 鼠标左键 |
+| `\` 反斜杠键 | 鼠标右键 |
+
+---
+
+## 使用方法
+
+1. **开机**：给 CardPuter ADV 上电
+2. **选择连接模式**：
+   - 按 `.` 或 `;` 键在 USB 模式和蓝牙模式之间切换
+   - 按 **Enter** 确认选择
+3. **切换键鼠模式**：按 **GO（BtnA）按钮** 在键盘模式和鼠标模式之间切换
+4. **鼠标模式**：倾斜设备移动光标，Enter 键点击左键，`\` 键点击右键
+5. **键盘模式**：正常使用物理键盘输入
+
+---
+
+## 技术原理
+
+### 体感鼠标算法
+
+```
+加速度计数据 → 死区过滤 → 倾角转速度向量 → 非线性速度曲线 → 低通滤波 → HID 鼠标报告
+```
+
+- **死区（Deadzone）**：倾角小于 0.10g 时忽略，避免手抖误触发
+- **满量程（Full Scale）**：0.75g 对应最大移动速度，超过即饱和
+- **速度曲线**：指数 1.7 的非线性映射，兼顾精确定位与快速移动
+- **低通滤波**：α=0.28 的 EMA 滤波器，平滑原始加速度数据
+- **最大步长**：单次最大移动 ±28 像素，防止光标跳跃
+
+### HID 报告协议
+
+项目实现了标准的 HID 鼠标报告（4 字节：按键 + X + Y + 滚轮）和 HID 键盘报告（8 字节：修饰键 + 保留 + 6 键位），兼容所有主流操作系统（Windows / macOS / Linux / Android / iOS）。
+
+---
+
+## 固件烧录
+
+预编译固件文件：
+
+```text
+cardputer-adv-imu-keyboard-mouse.bin
+```
+
+### 烧录方式
+
+**方式一：PlatformIO（推荐）**
+```bash
+# 克隆项目后
+pio run --target upload
+```
+
+**方式二：esptool 命令行**
+```bash
+esptool.py --chip esp32s3 --port /dev/ttyUSB0 write_flash 0x0 cardputer-adv-imu-keyboard-mouse.bin
+```
+
+**方式三：M5Burner 等图形化工具**
+将 `.bin` 文件烧录到 0x0 地址即可。
+
+---
+
+## 项目结构
+
+```
+├── platformio.ini           # PlatformIO 项目配置（ESP32-S3, 8MB Flash）
+├── src/
+│   ├── main.cpp             # 主程序入口，模式选择与主循环
+│   ├── bluetooth.cpp/.h     # 蓝牙 BLE HID 实现（鼠标 + 键盘报告）
+│   ├── usbHid.cpp/.h        # USB HID 实现（鼠标 + 键盘报告）
+│   ├── imuMouse.cpp/.h      # 体感鼠标算法（IMU 读取 + 滤波 + 速度映射）
+│   └── display.cpp/.h       # 屏幕 UI（模式选择、状态显示、图标绘制）
+└── README.md
+```
+
+---
+
+## 编译依赖
+
+| 依赖库 | 说明 |
+|-------|------|
+| `M5Cardputer` | M5Stack CardPuter 官方硬件支持库 |
+| `FastLED` | LED 指示灯控制（可选） |
+| ESP32 BLE HID 相关库 | Arduino ESP32 框架内置 |
+
+编译平台：`espressif32@6.7.0` + Arduino 框架，目标芯片 ESP32-S3，Flash 8MB。
+
+---
+
+## 常见问题
+
+**Q: 蓝牙模式下连不上设备？**
+A: 确保目标设备支持 BLE HID 协议。如果之前配对过，先在目标设备上忽略设备后重新搜索配对。
+
+**Q: 鼠标光标漂移？**
+A: 将设备平放静置 1-2 秒，IMU 会自动稳定。如果持续漂移，可调整 `imuMouse.cpp` 中的 `TILT_DEADZONE_G` 参数增大死区。
+
+**Q: 鼠标移动太快/太慢？**
+A: 调整 `imuMouse.cpp` 中的 `TILT_FULL_SCALE_G`（满量程阈值）或 `SPEED_CURVE`（速度曲线指数）参数。
+
+**Q: 鼠标方向反了？**
+A: 修改 `imuMouse.cpp` 中 `stickX` / `stickY` 的正负号即可翻转 X/Y 轴。

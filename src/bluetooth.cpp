@@ -1,6 +1,7 @@
 
 
 #include "bluetooth.h"
+#include "imuMouse.h"
 
 BLEHIDDevice* hid;
 BLECharacteristic* mouseInput;
@@ -23,8 +24,7 @@ bool getBluetoothStatus() {
 }
 
 void bluetoothMouse() {
-    int16_t x = 0;         // Déplacement en X
-    int16_t y = 0;         // Déplacement en Y
+    MouseDelta movement = readImuMouseDelta();
     uint8_t buttons = 0;   // Boutons de la souris
 
     Keyboard_Class::KeysState status = M5Cardputer.Keyboard.keysState();
@@ -38,24 +38,9 @@ void bluetoothMouse() {
         buttons |= 0x02;
     }
 
-    // Vertical
-    if (M5Cardputer.Keyboard.isKeyPressed(';')) {
-        y -= 1;
-    }
-    else if (M5Cardputer.Keyboard.isKeyPressed('.')) {
-        y += 1;
-    }
-
-    // Horizontal
-    if (M5Cardputer.Keyboard.isKeyPressed('/')) {
-        x += 1;
-    }
-    else if (M5Cardputer.Keyboard.isKeyPressed(',')) {
-        x -= 1;
-    }
-
-    // Send
-    uint8_t report[4] = {buttons, (uint8_t)x, (uint8_t)y, 0};
+    // Send IMU-driven movement. The fourth byte is kept for compatibility with
+    // the original firmware's report payload.
+    uint8_t report[4] = {buttons, (uint8_t)movement.x, (uint8_t)movement.y, 0};
     mouseInput->setValue(report, sizeof(report));
     mouseInput->notify();
 }
@@ -108,12 +93,10 @@ void sendEmptyReports() {
 
 void handleBluetoothMode(bool mouseMode) {
     if (bluetoothIsConnected) {
-        if (M5Cardputer.Keyboard.isPressed()) {
-            if (mouseMode) {
-                bluetoothMouse();
-            } else {
-                bluetoothKeyboard();
-            }
+        if (mouseMode) {
+            bluetoothMouse();
+        } else if (M5Cardputer.Keyboard.isPressed()) {
+            bluetoothKeyboard();
         } else {
             sendEmptyReports();
         }

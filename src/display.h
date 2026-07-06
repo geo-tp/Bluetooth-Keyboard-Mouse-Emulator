@@ -1,6 +1,6 @@
 
 #ifndef DISPLAY_H
-#define DSPLAY_H
+#define DISPLAY_H
 
 #include <M5Cardputer.h>
 

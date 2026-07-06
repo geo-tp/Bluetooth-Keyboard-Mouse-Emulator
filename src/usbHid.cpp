@@ -1,4 +1,5 @@
 #include "usbHid.h"
+#include "imuMouse.h"
 
 USBHIDMouse mouse;
 USBHIDKeyboard keyboard;
@@ -12,47 +13,29 @@ void handleUsbMode(bool mouseMode) {
     delay(5);
 }
 void usbMouse() {
-    mouse.begin();
-    int moveX = 0;
-    int moveY = 0;
-    if (M5Cardputer.Keyboard.isPressed()) {
-        Keyboard_Class::KeysState status = M5Cardputer.Keyboard.keysState();
+    static bool inited = false;
+    if (!inited) { mouse.begin(); inited = true; }
 
-        if (M5Cardputer.Keyboard.isKeyPressed('/')) {
-            // droite
-            moveX = 1;
-        } 
-        
-        if (M5Cardputer.Keyboard.isKeyPressed(',')) {
-            // gauche
-            moveX = -1;
-        }  
-        
-        if (M5Cardputer.Keyboard.isKeyPressed(';')) {
-            // haut
-            moveY = -1;
-        } 
-        
-        if (M5Cardputer.Keyboard.isKeyPressed('.')) {
-            // bas
-            moveY = 1;
-        }
+    MouseDelta movement = readImuMouseDelta();
+    Keyboard_Class::KeysState status = M5Cardputer.Keyboard.keysState();
 
-        // clics souris
-        if (status.enter) {
-            // gauche
-            mouse.press(MOUSE_BUTTON_LEFT);
-        } else if (M5Cardputer.Keyboard.isKeyPressed('\\')) {
-            // droit
-            mouse.press(MOUSE_BUTTON_RIGHT);
-        }
-        // Send
-        mouse.move(moveX, moveY);
-
+    // clics souris
+    if (status.enter) {
+        // gauche
+        mouse.press(MOUSE_BUTTON_LEFT);
     } else {
         mouse.release(MOUSE_BUTTON_LEFT);
+    }
+
+    if (M5Cardputer.Keyboard.isKeyPressed('\\')) {
+        // droit
+        mouse.press(MOUSE_BUTTON_RIGHT);
+    } else {
         mouse.release(MOUSE_BUTTON_RIGHT);
     }
+
+    // Send IMU-driven movement
+    mouse.move(movement.x, movement.y);
 }
 
 void usbKeyboard() {

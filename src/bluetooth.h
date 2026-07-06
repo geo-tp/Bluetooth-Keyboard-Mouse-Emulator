@@ -7,13 +7,11 @@
 #include <BLEServer.h>
 #include "BLEHIDDevice.h"
 #include "HIDTypes.h"
-#include "HIDKeyboardTypes.h"
 #include "display.h"
 
 extern BLEHIDDevice* hid;
 extern BLECharacteristic* mouseInput;
 extern BLECharacteristic* keyboardInput;
-extern bool isConnected;
 
 const uint8_t HID_REPORT_MAP[] = {
     // Mouse report
