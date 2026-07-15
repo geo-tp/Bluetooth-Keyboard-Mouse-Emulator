@@ -13,10 +13,10 @@
 extern BLEHIDDevice* hid;
 extern BLECharacteristic* mouseInput;
 extern BLECharacteristic* keyboardInput;
-extern bool isConnected;
+extern bool bluetoothIsConnected;
 
 const uint8_t HID_REPORT_MAP[] = {
-    // Mouse report
+    // Mouse report with Scroll Wheel support
     0x05, 0x01,        // Usage Page (Generic Desktop)
     0x09, 0x02,        // Usage (Mouse)
     0xA1, 0x01,        // Collection (Application)
@@ -41,6 +41,12 @@ const uint8_t HID_REPORT_MAP[] = {
     0x25, 0x7F,        //     Logical Maximum (127)
     0x75, 0x08,        //     Report Size (8)
     0x95, 0x02,        //     Report Count (2)
+    0x81, 0x06,        //     Input (Data,Var,Rel)
+    0x09, 0x38,        //     Usage (Wheel)
+    0x15, 0x81,        //     Logical Minimum (-127)
+    0x25, 0x7F,        //     Logical Maximum (127)
+    0x75, 0x08,        //     Report Size (8)
+    0x95, 0x01,        //     Report Count (1)
     0x81, 0x06,        //     Input (Data,Var,Rel)
     0xC0,              //   End Collection
     0xC0,              // End Collection
@@ -85,15 +91,15 @@ void initBluetooth();
 void deinitBluetooth();
 bool getBluetoothStatus();
 
-void bluetoothMouse();
-void bluetoothKeyboard();
+void bluetoothMouse(bool motionMode, bool scrollMode);
+void bluetoothKeyboard(bool capsLock, bool fnLock);
 void sendEmptyReports();
-void handleBluetoothMode(bool mouseMode);
+void handleBluetoothMode(bool mouseMode, bool motionMode, bool scrollMode, bool capsLock, bool fnLock);
 
 class MyBLEServerCallbacks : public BLEServerCallbacks {
 public:
     void onConnect(BLEServer* pServer) override;
-    void onDisconnect(BLEServer* pServer, esp_ble_gatts_cb_param_t *param) override;
+    void onDisconnect(BLEServer* pServer) override;
 };
 
 #endif // BLUETOOTH_H
